@@ -9,9 +9,9 @@ format: pdf
 ```{r}
 #| label: setup 
 #| include: false
-#| library(tidyverse)
-#| library(tidymodels)
-#| library(readr)
+library(tidyverse)
+library(tidymodels)
+library(readr)
 ```
 
 ## Importing Data
@@ -29,10 +29,10 @@ HDI <-read_csv("Data/hdi_human_development_index.csv")
 poverty<-read_csv("Data/number_of_people_in_poverty.csv")
 internet <- read_csv("Data/internet_users.csv")
 traff_death <- read_csv("Data/traffic_deaths.csv")
-sanitation <- read_csv("Data/sanitation.csv")
+sanitation <- read_csv("Data/basic_sanitation_overall.csv")
 gapminder_2025<-read_csv("Data/gapminder_2025.csv") # QUALITATIVE (regions)
 democracy <-read_csv("Data/democracy2020.csv")   # QUALITATIVE (Yes/NO)
-UN_mem <- read_csv("Data/UN_membership.csv")  # QUALITATIVE (mem/not mem)
+UN_mem <- read_csv("Data/un_member_status.csv")  # QUALITATIVE (mem/not mem)
 ```
 
 ## Wrangling Data
@@ -43,24 +43,28 @@ TODO: 1. Combine all the data into a large dataset
 
 ```{r}
 # Join Data Files
-data_lst<- list(select(CO2, geo,'2022'), select(gdp, geo, '2025'), select(HDI, geo,'2023'), select(poverty, geo, '2025'), select(internet, geo, 'xxx'), select(traff_death, geo, 'xxx'), select(sanitation, geo, 'xxx'), select(UN_mem, geo, 'xxx'), democracy, select(gapminder_2025, geo, world_4region))
+data_lst<- list(select(life_exp, geo,'2025'), select(CO2, geo,'2022'), select(gdp, geo, '2025'), select(HDI, geo,'2023'), select(poverty, geo, '2025'), select(internet, geo, '2024'), select(traff_death, geo, '2023'), select(sanitation, geo, '2024'), select(UN_mem, geo, '2022'), select(gapminder_2025, geo, world_4region))
 
-Full_2025<-life_exp
+Full_2025<-democracy
 for (dataset in data_lst){  
   Full_2025 <- Full_2025|>
     full_join(dataset, by="geo")
 }
 
+```
+
+```{r}
 Full_2025<-Full_2025|>
   rename( #rename columns for clarity
-         CO2=`2022`,
-         GDP=`2025.x`,
-         Poverty = `2025.y`,
-         HDI= `2023`,
-         Internet = ``,
-         Traffic_Deaths = ``,
-         Sanitation = ``,
-         UN_member = ``
+         LifeExp = `2025.x`,
+         CO2=`2022.x`,
+         GDP=`2025.y`,
+         Poverty = `2025`,
+         HDI= `2023.x`,
+         Internet = `2024.x`,
+         Traffic_Deaths = `2023.y`,
+         Sanitation = `2024.y`,
+         UN_member = `2022.y`
          ) 
 ```
 
