@@ -1,6 +1,6 @@
 ---
-title: "Mini-project 2 Template"
-author: "Team member names here."
+title: "Mini-project 3 Template"
+author: "Grace Rubio, Oyinda Sanni, Mia Mason"
 format: pdf
 editor: visual
 ---
@@ -20,14 +20,51 @@ This is the template document for mini-project 3. You must use the template docu
 Put whatever libraries you use here.
 
 ```{r}
-
+library(tidyverse)
+library(tidymodels)
+library(glmnet)
+library(rpart)
+library(rpart.plot)
 ```
 
 Load your data here
 
 ```{r}
-
+# Full Dataset
+FullData_2025 <- read.csv("Data/FullData_2025")
 ```
+
+```{r}
+# Clean Data [Helpful for graphs and Models]
+FullData_2025 <- FullData_2025|>
+  drop_na()
+```
+
+**NOTE REGARDING DATA:** Please note that the data for each variable was collected from the last year provided in their respective datasets. For our purposes, we will be treated all variables as being collected from the year 2025 regardless of their most recent data. Below are the *actual* years each column was collected from:
+
+*Democracy:* 2020
+
+*CO2 Emissions:* 2022
+
+*GDP per Capita:* 2025
+
+*Human Development Index:* 2023
+
+*People in Poverty:* 2025
+
+*Gapminder Regions:* 2025
+
+*Life Expectancy at Birth:*
+
+*Number of Traffic Deaths Per 100k People:*
+
+*Number of Internet Users:*
+
+*UN Membership:*
+
+*Basic Sanitation Overall:*
+
+# Section 1: Oyinda
 
 ## Exploratory data analysis
 
@@ -71,6 +108,8 @@ From your exploratory data analysis, which variable will need logged/did you log
 
 Split your data into an 80/20 training testing split after logging any variables that need logged.
 
+# Section 2: Mia
+
 ## Lasso regression
 
 ### Making model
@@ -95,6 +134,7 @@ By looking at the tree, which variables should be considered included in the mod
 
 ### Model evaluation-regression metrics on testing.
 
+# Section 3: Grace
 
 ## Random forest
 
@@ -108,13 +148,13 @@ By looking at the variable importance plot, which variables should be considered
 
 ### Model evaluation-regression metrics on testing.
 
-## Variable slection comparison
+## Variable selection comparison
 
 What were the similarities and the difference between the variables selected for each model.
 
 ## Best model
 
-Which model would you reccomend your team use? Why? Are there tradeoff between interpretability and model metrics?
+Which model would you recommend your team use? Why? Are there trade-offs between interpretability and model metrics?
 
 ## Your question
 
