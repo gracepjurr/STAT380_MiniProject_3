@@ -1,0 +1,121 @@
+---
+title: "Mini-project 2 Template"
+author: "Team member names here."
+format: pdf
+editor: visual
+---
+
+Feel free to change render format to html using
+
+format: html
+
+self-contained: true
+
+## Instructions
+
+This is the template document for mini-project 3. You must use the template document for your code, since it will make it much easier to follow.
+
+## Libraries and data load
+
+Put whatever libraries you use here.
+
+```{r}
+
+```
+
+Load your data here
+
+```{r}
+
+```
+
+## Exploratory data analysis
+
+For this section graph and find statistics for each of your 5 new predictor variables vs the response. You do not need to look at the predictor variables individually, although you can if you are considering logging.
+
+## Variable 1: INSERT NAME HERE
+
+### Graph and description
+
+### Stats and description
+
+## Variable 2: INSERT NAME HERE
+
+### Graph and description
+
+### Stats and description
+
+## Variable 3: INSERT NAME HERE
+
+### Graph and description
+
+### Stats and description
+
+## Variable 4: INSERT NAME HERE
+
+### Graph and description
+
+### Stats and description
+
+## Variable 5: INSERT NAME HERE
+
+### Graph and description
+
+### Stats and description
+
+## Which variable for logging?
+
+From your exploratory data analysis, which variable will need logged/did you log already ? Why?
+
+## Logging predictor variables and splitting data
+
+Split your data into an 80/20 training testing split after logging any variables that need logged.
+
+## Lasso regression
+
+### Making model
+
+Make a lasso regression model for your response vs all predictors on the training data.
+
+### Which variables
+
+By looking at the slopes, which variables should be considered included in the model
+
+### Model evaluation-regression metrics on testing.
+
+## Regression Tree
+
+### Making model
+
+Make a regression tree model for your response vs all predictors on the training data.
+
+### Which variables
+
+By looking at the tree, which variables should be considered included in the model
+
+### Model evaluation-regression metrics on testing.
+
+
+## Random forest
+
+### Making model
+
+Make a random forest model for your response vs all predictors on the training data.
+
+### Which variables
+
+By looking at the variable importance plot, which variables should be considered included in the model
+
+### Model evaluation-regression metrics on testing.
+
+## Variable slection comparison
+
+What were the similarities and the difference between the variables selected for each model.
+
+## Best model
+
+Which model would you reccomend your team use? Why? Are there tradeoff between interpretability and model metrics?
+
+## Your question
+
+You will write your own question about the data, create a data visualization that can help answer your question, and write an answer to your question. The question/visualization should explore the relationship between at least 2 of the variables in the dataset. Be sure you include both the question and the answer to your question based on the visualization you have created. It should be a different question than last two mini-projects.
