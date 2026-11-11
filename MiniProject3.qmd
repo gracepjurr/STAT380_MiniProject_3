@@ -31,7 +31,8 @@ Load your data here
 
 ```{r}
 # Full Dataset
-FullData_2025 <- read.csv("Data/FullData_2025")
+FullData_2025 <- read.csv("Data/FullData_2025.csv")
+
 ```
 
 ```{r}
@@ -70,35 +71,182 @@ FullData_2025 <- FullData_2025|>
 
 For this section graph and find statistics for each of your 5 new predictor variables vs the response. You do not need to look at the predictor variables individually, although you can if you are considering logging.
 
-## Variable 1: INSERT NAME HERE
+## Variable 1: Democracy
 
 ### Graph and description
 
+```{r}
+#PLOT
+FullData_2025 |>
+  ggplot(aes(x = Democracy, y = LifeExp)) +
+  geom_boxplot() +
+  labs(x = "Is the country a democracy?",
+       y = "Life expectancy (years)",
+       title = "Life Expectancy in 2025 by Democracy Status")
+```
+
+From the boxplot, we can see that democracies tend to live longer than non-democracies. The median life expectancy is about 79 years for democracies and about 70 years for non-democracies. That is a gap of roughly 9 years. The middle halves of the two groups dont overlap. Non-democracies are more spread out, from about 55 to 81 years. Four democracies are outliers, with life expectancy of about 59 to 67 years.Democracy status looks like a useful predictor, but it does not directly prove that democracy causes longer life.
+
 ### Stats and description
 
-## Variable 2: INSERT NAME HERE
+```{r}
+Democracy_LifeExp_summary <- FullData_2025 |>
+  group_by(Democracy) |>
+  summarize(avg_lifeexp = mean(LifeExp),
+            sd_lifeexp = sd(LifeExp),
+            min_lifeexp = min(LifeExp),
+            max_lifeexp = max(LifeExp),
+            mdn_lifeexp = median(LifeExp),
+            iqr_lifeexp = IQR(LifeExp),
+            count = n())
+
+Democracy_LifeExp_summary
+
+```
+
+Democracies have a higher mean life expectancy than non-democracies, at 78.22 and 69.89 years. The medians are 79.00 and 70.39 years. Non-democracies vary more, with an SD of 6.31 and an IQR of 10.1, compared to 5.36 and 5.9 for democracies. The groups are about the same size, with 71 non-democracies and 69 democracies. Democracy looks like a strong predictor, because the gap is bigger than the spread within each group.
+
+## Variable 2: *Number of Traffic Deaths Per 100k People*
 
 ### Graph and description
 
+```{r}
+FullData_2025 |>
+  ggplot(aes(x = Traffic_Deaths, y = LifeExp)) +
+  geom_point() +
+  scale_x_log10() +
+  labs(x = "Traffic deaths per 100,000 people (log scale)",
+       y = "Life expectancy (years)",
+       title = "Life Expectancy in 2025 vs. Traffic Deaths")
+
+```
+
+Countries with more traffic deaths tend to have lower life expectancy. The pattern is negative and slightly curved. Most countries have fewer than 40 deaths per 100,000 people. The points spread out more on the right side. Three countries are far to the right, at about 64, 76, and 96 deaths.
+
 ### Stats and description
 
-## Variable 3: INSERT NAME HERE
+```{r}
+TrafficDeaths_summary <- FullData_2025 |>
+  summarize(avg_td = mean(Traffic_Deaths),
+            sd_td = sd(Traffic_Deaths),
+            min_td = min(Traffic_Deaths),
+            max_td = max(Traffic_Deaths),
+            mdn_td = median(Traffic_Deaths),
+            iqr_td = IQR(Traffic_Deaths),
+            count = n())
+
+TrafficDeaths_summary
+FullData_2025 |>
+  summarize(r = cor(Traffic_Deaths, LifeExp),
+            r_log = cor(log10(Traffic_Deaths), LifeExp))
+```
+
+Traffic deaths range from 1.56 to 96.3 per 100,000 people across 140 countries. The mean is 18.13 and the median is 14.40. The mean is higher than the median, so a few high values pull it up. The SD is 16.03 and the IQR is 19.12.
+
+## Variable 3: *Number of Internet Users*
 
 ### Graph and description
 
+```{r}
+FullData_2025 |>
+  ggplot(aes(x = Internet, y = LifeExp)) +
+  geom_point() +
+  labs(x = "Internet users (% of population)",
+       y = "Life expectancy (years)",
+       title = "Life Expectancy in 2025 vs. Internet Users")
+
+```
+
+Countries with more internet use tend to have higher life expectancy. The pattern is positive. Most countries are near 100 percent online, and they bunch together at the top right. Countries with low internet use are more spread out, with life expectancy from about 55 to 77 years.
+
 ### Stats and description
 
-## Variable 4: INSERT NAME HERE
+```{r}
+Internet_summary <- FullData_2025 |>
+  summarize(avg_int = mean(Internet),
+            sd_int = sd(Internet),
+            min_int = min(Internet),
+            max_int = max(Internet),
+            mdn_int = median(Internet),
+            iqr_int = IQR(Internet),
+            count = n())
+
+Internet_summary
+FullData_2025 |>
+  summarize(r = cor(Internet, LifeExp),
+            r_log = cor(log10(Internet), LifeExp))
+```
+
+Internet use ranges from 8.60 to 100 percent across 140 countries. The mean is 71.36 and the median is 82.20. The mean is lower than the median, so a few low countries pull it down. The SD is 26.49 and the IQR is 37.78, so the countries vary a lot.
+
+## Variable 4: *UN Membership*
 
 ### Graph and description
 
+```{r}
+FullData_2025 |>
+  ggplot(aes(x = UN_member, y = LifeExp)) +
+  geom_boxplot() +
+  labs(x = "Is the country a UN member?",
+       y = "Life expectancy (years)",
+       title = "Life Expectancy in 2025 by UN Membership")
+```
+
+The plot shows only one group, because all 140 countries are UN members. The box covers life expectancy from about 68 to 80 years, with a median near 76. There is no second group to compare. This graph cannot show whether membership is linked to life expectancy.
+
 ### Stats and description
 
-## Variable 5: INSERT NAME HERE
+```{r}
+UN_LifeExp_summary <- FullData_2025 |>
+  group_by(UN_member) |>
+  summarize(avg_lifeexp = mean(LifeExp),
+            sd_lifeexp = sd(LifeExp),
+            min_lifeexp = min(LifeExp),
+            max_lifeexp = max(LifeExp),
+            mdn_lifeexp = median(LifeExp),
+            iqr_lifeexp = IQR(LifeExp),
+            count = n())
+
+UN_LifeExp_summary
+```
+
+All 140 countries are UN members, so the table has only one row. Their mean life expectancy is 74.00 years and the median is 75.76 years. The SD is 7.18 and the IQR is 11.24. Life expectancy ranges from 55.48 to 85.71 years. With no non-members in the data, there is no variation in this predictor. It is a constant, so it is not useful for modeling. I will not use UN membership as a predictor
+
+## Variable 5: *Basic Sanitation Overall*
 
 ### Graph and description
 
+```{r}
+FullData_2025 |>
+  ggplot(aes(x = Sanitation, y = LifeExp)) +
+  geom_point() +
+  labs(x = "Basic sanitation access (% of population)",
+       y = "Life expectancy (years)",
+       title = "Life Expectancy in 2025 vs. Basic Sanitation")
+
+```
+
+Countries with more access to basic sanitation tend to have higher life expectancy. The pattern is positive and roughly straight. Many countries bunch near 100 percent, and their life expectancy varies a lot, from about 70 to 85 years. Countries with low sanitation are fewer and have lower life expectancy, mostly 55 to 70 years.
+
 ### Stats and description
+
+```{r}
+Sanitation_summary <- FullData_2025 |>
+  summarize(avg_san = mean(Sanitation),
+            sd_san = sd(Sanitation),
+            min_san = min(Sanitation),
+            max_san = max(Sanitation),
+            mdn_san = median(Sanitation),
+            iqr_san = IQR(Sanitation),
+            count = n())
+
+Sanitation_summary
+FullData_2025 |>
+  summarize(r = cor(Sanitation, LifeExp),
+            r_log = cor(log10(Sanitation), LifeExp))
+```
+
+Sanitation access ranges from 10.36 to 100 percent across 140 countries. The mean is 78.53 and the median is 92.31. The mean is much lower than the median, so the data is skewed left, with a few low countries pulling the mean down. The SD is 27.43 and the IQR is 37.22.
 
 ## Which variable for logging?
 
