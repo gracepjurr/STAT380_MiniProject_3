@@ -47,8 +47,6 @@ FullData_2025<-FullData_2025|>
 
 head(FullData_2025)
 
-# Create list of only predictor variables
-predictors <- c("Democracy", colnames(FullData_2025)[5:13])
 ```
 
 **NOTE REGARDING DATA:** Please note that the data for each variable was collected from the last year provided in their respective datasets. For our purposes, we will be treated all variables as being collected from the year 2025 regardless of their most recent data. Below are the *actual* years each column was collected from:
@@ -297,6 +295,9 @@ train_data <- training(data_split)
 test_data  <- testing(data_split)
 nrow(train_data)
 nrow(test_data)
+
+# Create list of only predictor variables
+predictors <- c("Democracy", colnames(FullData_2025)[5:9],colnames(FullData_2025)[11:14])
 ```
 
 # Section 2: Mia
@@ -308,7 +309,15 @@ nrow(test_data)
 Make a lasso regression model for your response vs all predictors on the training data.
 
 ```{r}
-FullData_folds <- vfold_cv(FullData_train, v = 10)
+FullData_folds <- vfold_cv(train_data, v = 10)
+
+lasso_recipe <- recipe(as.formula(
+  paste("LifeExp ~", 
+        paste(predictors, collapse = " + "))), data = train_data) |>
+  step_novel(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors()) |> 
+  step_zv(all_predictors()) |>
+  step_normalize(all_numeric_predictors())
 
 lasso_spec <- linear_reg(
   penalty = tune(),
@@ -317,13 +326,13 @@ lasso_spec <- linear_reg(
   set_engine("glmnet")
 
 lasso_workflow <- workflow() |>
-  add_recipe(LifExp_recipe) |>
+  add_recipe(lasso_recipe) |>
   add_model(lasso_spec)
 
 lasso_tuned <- tune_grid(
   lasso_workflow,
   resamples = FullData_folds,
-  grid = penalty_grid,
+  grid = 50,
   metrics = metric_set(rmse, rsq, mae)
 )
 ```
@@ -337,17 +346,21 @@ autoplot(lasso_tuned)
 lasso_best <- select_best(lasso_tuned, metric = "rmse")
 lasso_best
 lasso_final_workflow <- finalize_workflow(lasso_workflow, lasso_best)
-lasso_fit <- fit(lasso_final_workflow, data = FullData_train)
+lasso_fit <- fit(lasso_final_workflow, data = train_data)
 tidy(lasso_fit)
 ```
+
+Based on the LASSO regression model, the variables to be considered include: HDI, log_Traffic_Deaths, and Sanitation.
+
+*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
 
 ### Model evaluation-regression metrics on testing.
 
 ```{r}
 regression_metrics <- metric_set(mse, rmse, mae)
 
-lasso_test_results <- predict(lasso_fit, FullData_test) |>
-  bind_cols(FullData_test |> select(LifeExp)) |>
+lasso_test_results <- predict(lasso_fit, test_data) |>
+  bind_cols(test_data |> select(LifeExp)) |>
   regression_metrics(truth = LifeExp, estimate = .pred)
 lasso_test_results
 ```
@@ -364,13 +377,13 @@ tree_spec <- decision_tree() |>
   set_engine("rpart", model=TRUE) 
 
 tree_workflow <- workflow() |>
-  add_recipe(LifExp_recipe) |>
+  add_recipe(lasso_recipe) |>
   add_model(tree_spec)
 
-heart_tree=tree_workflow |>
-  fit(data = heart_train)
+LifeExp_tree=tree_workflow |>
+  fit(data = train_data)
 
-tree_object=heart_tree |>
+tree_object=LifeExp_tree |>
   extract_fit_engine() 
 ```
 
@@ -382,14 +395,18 @@ By looking at the tree, which variables should be considered included in the mod
 rpart.plot(tree_object)
 ```
 
+Based on the regression tree, the variables to consider include Sanitation, CO2, and HDI.
+
+*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
+
 ### Model evaluation-regression metrics on testing
 
 ```{r}
 LifeExp_tree_predict <- 
   tree_workflow |> 
-  fit(data = FullData_test)
+  fit(data = test_data)
 
-test_results <- augment(LifeExp_tree_predict, new_data = FullData_test)
+test_results <- augment(LifeExp_tree_predict, new_data = test_data)
 
 test_results|>
   regression_metrics(truth = LifeExp, estimate = .pred)
@@ -404,8 +421,10 @@ test_results|>
 Make a random forest model for your response vs all predictors on the training data.
 
 ```{r}
-LifExp_recipe=recipe(as.formula(paste("LifeExp ~", paste(predictors, collapse = " + "))),
-         data=Full_train) # only count 10 predictor variables
+LifExp_recipe=recipe(as.formula(
+  paste("LifeExp ~", 
+        paste(predictors, collapse = " + "))),
+  data=train_data) # only count 10 predictor variables
 
 tree_spec <- rand_forest() |>
   set_mode("regression")|>
@@ -416,7 +435,7 @@ rf_workflow <- workflow() |>
   add_model(tree_spec)
 
 LifeExp_rf=rf_workflow |>
-  fit(data = Full_train) 
+  fit(data = train_data) 
 ```
 
 ### Which variables
@@ -455,9 +474,9 @@ regression_metrics <- metric_set(mse, rmse, mae)
 
 LifeExp_rf_predict <- 
   rf_workflow |> 
-  fit(data = Full_test)
+  fit(data = test_data)
 
-test_results <- augment(LifeExp_rf_predict, new_data = Full_test) ## adding original data
+test_results <- augment(LifeExp_rf_predict, new_data = test_data) ## adding original data
 
 
 rf_regress_test=test_results|>
