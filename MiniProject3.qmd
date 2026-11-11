@@ -26,6 +26,7 @@ library(tidymodels)
 library(glmnet)
 library(rpart)
 library(rpart.plot)
+library(ranger) # for random forests
 ```
 
 Load your data here
@@ -39,6 +40,15 @@ FullData_2025 <- read.csv("Data/FullData_2025.csv")
 # Clean Data [Helpful for graphs and Models]
 FullData_2025 <- FullData_2025|>
   drop_na()
+
+# Establish Factors 
+FullData_2025<-FullData_2025|>
+  mutate(Democracy=as.factor(Democracy), UN_member=as.factor(UN_member), world_4region=as.factor(world_4region))
+
+head(FullData_2025)
+
+# Create list of only predictor variables
+predictors <- c("Democracy", colnames(FullData_2025)[5:13])
 ```
 
 **NOTE REGARDING DATA:** Please note that the data for each variable was collected from the last year provided in their respective datasets. For our purposes, we will be treated all variables as being collected from the year 2025 regardless of their most recent data. Below are the *actual* years each column was collected from:
@@ -55,15 +65,15 @@ FullData_2025 <- FullData_2025|>
 
 *Gapminder Regions:* 2025
 
-*Life Expectancy at Birth:*
+*Life Expectancy at Birth:* 2025
 
-*Number of Traffic Deaths Per 100k People:*
+*Number of Traffic Deaths Per 100k People:* 2023
 
-*Number of Internet Users:*
+*Number of Internet Users:* 2024
 
-*UN Membership:*
+*UN Membership:* 2022
 
-*Basic Sanitation Overall:*
+*Basic Sanitation Overall:* 2024
 
 # Section 1: Oyinda
 
@@ -144,7 +154,9 @@ By looking at the tree, which variables should be considered included in the mod
 Make a random forest model for your response vs all predictors on the training data.
 
 ```{r}
-LifExp_recipe=recipe(LifeExp~., data=Full_train)
+LifExp_recipe=recipe(as.formula(paste("LifeExp ~", paste(predictors, collapse = " + "))),
+         data=Full_train) # only count 10 predictor variables
+
 tree_spec <- rand_forest() |>
   set_mode("regression")|>
   set_engine("ranger",importance = "impurity") #Impurity here is sum of squares residual
@@ -182,7 +194,7 @@ importance_df |>
   )
 ```
 
-From the graph, the main variables that we would consider to include in the model are `HDI` and `Sanitation` since they had the highest importance according to the results of the graph. Other variables that could also be considered are `Traffic Deaths`, `Internet Users`, and `GDP`.
+From the graph, the main variables that we would consider to include in the model are `HDI` and `Sanitation` since they had the highest importance according to the results of the graph. Other variables that could also be considered are `Traffic Deaths`and `Internet Users` followed by `GDP`.
 
 *Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables. 
 
@@ -215,3 +227,39 @@ Which model would you recommend your team use? Why? Are there trade-offs between
 ## Your question
 
 You will write your own question about the data, create a data visualization that can help answer your question, and write an answer to your question. The question/visualization should explore the relationship between at least 2 of the variables in the dataset. Be sure you include both the question and the answer to your question based on the visualization you have created. It should be a different question than last two mini-projects.
+
+**QUESTION:** What is the relationship between overall sanitation and life expectancy at birth over different regions and countries with different democratic status?
+```{r}
+esquisser(FullData_2025)
+```
+
+
+```{r}
+ggplot(FullData_2025) +
+  aes(x = Traffic_Deaths, y = LifeExp, colour = world_4region) +
+  geom_point() +
+  scale_color_hue(direction = 1) 
+
+FullData_2025 |>
+  ggplot(aes(x = Traffic_Deaths, y = LifeExp, color = Democracy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    x = "Traffic Deaths (per 100K)",
+    y = "Life Expectancy at Birth",
+    color = "Democracy",
+    title = "Life Expectancy vs. Traffic Deaths by Democratic Country"
+  )
+
+#Side by side boxplots
+FullData_2025|>
+  ggplot(mapping = aes(x = Democracy, y = LifeExp)) +
+  geom_boxplot() +
+  facet_wrap(vars(world_4region))+
+  labs(title = "Body Mass vs. Sex for Palmer Penguins",
+       x = "Democracy", 
+       y = "Life Expectancy at Birth")
+```
+
+
+**ANSWER:**
