@@ -95,7 +95,7 @@ FullData_2025 |>
        title = "Life Expectancy in 2025 by Democracy Status")
 ```
 
-From the boxplot, we can see that democracies tend to live longer than non-democracies. The median life expectancy is about 79 years for democracies and about 70 years for non-democracies. That is a gap of roughly 9 years. The middle halves of the two groups dont overlap. Non-democracies are more spread out, from about 55 to 81 years. Four democracies are outliers, with life expectancy of about 59 to 67 years.Democracy status looks like a useful predictor, but it does not directly prove that democracy causes longer life.
+From the boxplot, we can see that democracies tend to live longer than non-democracies. The median life expectancy is about 79 years for democracies and about 70 years for non-democracies. That is a gap of roughly 9 years. The middle halves of the two groups dont overlap. Non-democracies are more spread out, from about 55 to 81 years. Four democracies are outliers, with life expectancy of about 59 to 67 years.Democracy status looks like a useful predictor, but it does not directly prove that democracy causes longer life.Non-democracies are more spread out. Four democracies are low outliers: Lesotho, Ghana, Papua New Guinea, and Namibia.
 
 ### Stats and description
 
@@ -111,10 +111,14 @@ Democracy_LifeExp_summary <- FullData_2025 |>
             count = n())
 
 Democracy_LifeExp_summary
+FullData_2025 |>
+  filter(Democracy == "Yes") |>
+  slice_min(LifeExp, n = 4) |>
+  select(name, LifeExp)
 
 ```
 
-Democracies have a higher mean life expectancy than non-democracies, at 78.22 and 69.89 years. The medians are 79.00 and 70.39 years. Non-democracies vary more, with an SD of 6.31 and an IQR of 10.1, compared to 5.36 and 5.9 for democracies. The groups are about the same size, with 71 non-democracies and 69 democracies. Democracy looks like a strong predictor, because the gap is bigger than the spread within each group.
+Democracies have a higher mean life expectancy than non-democracies, at 78.22 and 69.89 years. The medians are 79.00 and 70.39 years. Non-democracies vary more, with an SD of 6.31 and an IQR of 10.1, compared to 5.36 and 5.9 for democracies. The groups are about the same size, with 71 non-democracies and 69 democracies. The lowest democracy is Lesotho, at 58.71 years. Democracy looks like a strong predictor, because the gap is bigger than the spread within each group.
 
 ## Variable 2: *Number of Traffic Deaths Per 100k People*
 
@@ -131,7 +135,7 @@ FullData_2025 |>
 
 ```
 
-Countries with more traffic deaths tend to have lower life expectancy. The pattern is negative and slightly curved. Most countries have fewer than 40 deaths per 100,000 people. The points spread out more on the right side. Three countries are far to the right, at about 64, 76, and 96 deaths.
+Countries with more traffic deaths tend to have lower life expectancy. The pattern is negative and slightly curved. Most countries have fewer than 40 deaths per 100,000 people. The points spread out more on the right side. Three countries are far to the right, at about 64, 76, and 96 deaths.Three countries are far to the right: Congo, Dem. Rep., Rwanda, and Uganda.
 
 ### Stats and description
 
@@ -149,9 +153,12 @@ TrafficDeaths_summary
 FullData_2025 |>
   summarize(r = cor(Traffic_Deaths, LifeExp),
             r_log = cor(log10(Traffic_Deaths), LifeExp))
+FullData_2025 |>
+  slice_max(Traffic_Deaths, n = 3) |>
+  select(name, Traffic_Deaths, LifeExp)
 ```
 
-Traffic deaths range from 1.56 to 96.3 per 100,000 people across 140 countries. The mean is 18.13 and the median is 14.40. The mean is higher than the median, so a few high values pull it up. The SD is 16.03 and the IQR is 19.12.
+Traffic deaths range from 1.56 to 96.3 per 100,000 people across 140 countries. The mean is 18.13 and the median is 14.40, so a few high values pull the mean up. The SD is 16.03 and the IQR is 19.12. The correlation with life expectancy is -0.78, which is a strong negative relationship. The highest rates are in Congo, Dem. Rep. (96.30), Rwanda (76.42), and Uganda (63.70). I will log this variable, because the correlation improves to -0.83 after logging.
 
 ## Variable 3: *Number of Internet Users*
 
@@ -185,9 +192,12 @@ Internet_summary
 FullData_2025 |>
   summarize(r = cor(Internet, LifeExp),
             r_log = cor(log10(Internet), LifeExp))
+FullData_2025 |>
+  slice_min(Internet, n = 3) |>
+  select(name, Internet, LifeExp)
 ```
 
-Internet use ranges from 8.60 to 100 percent across 140 countries. The mean is 71.36 and the median is 82.20. The mean is lower than the median, so a few low countries pull it down. The SD is 26.49 and the IQR is 37.78, so the countries vary a lot.
+Internet use ranges from 8.60 to 100 percent across 140 countries. The mean is 71.36 and the median is 82.20. The mean is lower than the median, so a few low countries pull it down. The SD is 26.49 and the IQR is 37.78, so the countries vary a lot.The lowest values are in Burundi (8.60), Uganda (8.95), and Chad (12.63). I will not log this variable, because the correlation is stronger on the original scale (0.83 vs. 0.78).
 
 ## Variable 4: *UN Membership*
 
@@ -254,17 +264,40 @@ Sanitation_summary
 FullData_2025 |>
   summarize(r = cor(Sanitation, LifeExp),
             r_log = cor(log10(Sanitation), LifeExp))
+FullData_2025 |>
+  slice_min(Sanitation, n = 3) |>
+  select(name, Sanitation, LifeExp)
+
 ```
 
-Sanitation access ranges from 10.36 to 100 percent across 140 countries. The mean is 78.53 and the median is 92.31. The mean is much lower than the median, so the data is skewed left, with a few low countries pulling the mean down. The SD is 27.43 and the IQR is 37.22.
+Sanitation access ranges from 10.36 to 100 percent across 140 countries. The mean is 78.53 and the median is 92.31, so the data is skewed left. The SD is 27.43 and the IQR is 37.22. The correlation with life expectancy is 0.85, which is a strong positive relationship. The lowest values are in Ethiopia (10.36), Chad (13.14), and Central African Republic (14.04). I will not log this variable, because the correlation is stronger on the original scale (0.85 vs. 0.80).The extreme values for traffic deaths, internet use, sanitation, and the low democracy outliers come mostly from Africa.
 
 ## Which variable for logging?
 
 From your exploratory data analysis, which variable will need logged/did you log already ? Why?
 
+Traffic deaths is the variable I will log. The data is skewed right. The mean (18.13) is higher than the median (14.40). A few African countries sit far out, with Congo, Dem. Rep. at 96.30 and Rwanda at 76.42 deaths per 100,000. Logging improves the correlation with life expectancy from -0.78 to -0.83. That means the relationship is closer to a straight line after logging.
+
 ## Logging predictor variables and splitting data
 
 Split your data into an 80/20 training testing split after logging any variables that need logged.
+
+```{r}
+library(tidymodels)
+
+# Log the variable that needs it
+FullData_2025 <- FullData_2025 |>
+  mutate(log_Traffic_Deaths = log10(Traffic_Deaths))
+
+# Split the data 80/20
+set.seed(1885)   # use the seed your assignment gives you
+data_split <- initial_split(FullData_2025, prop = 0.80)
+
+train_data <- training(data_split)
+test_data  <- testing(data_split)
+nrow(train_data)
+nrow(test_data)
+```
 
 # Section 2: Mia
 
@@ -413,7 +446,7 @@ importance_df |>
 
 From the graph, the main variables that we would consider to include in the model are `HDI` and `Sanitation` since they had the highest importance according to the results of the graph. Other variables that could also be considered are `Traffic Deaths`and `Internet Users` followed by `GDP`.
 
-*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables. 
+*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
 
 ### Model evaluation-regression metrics on testing.
 
@@ -432,7 +465,6 @@ rf_regress_test=test_results|>
 rf_regress_test
 ```
 
-
 ## Variable selection comparison
 
 What were the similarities and the difference between the variables selected for each model.
@@ -446,10 +478,10 @@ Which model would you recommend your team use? Why? Are there trade-offs between
 You will write your own question about the data, create a data visualization that can help answer your question, and write an answer to your question. The question/visualization should explore the relationship between at least 2 of the variables in the dataset. Be sure you include both the question and the answer to your question based on the visualization you have created. It should be a different question than last two mini-projects.
 
 **QUESTION:** What is the relationship between overall sanitation and life expectancy at birth over different regions and countries with different democratic status?
+
 ```{r}
 esquisser(FullData_2025)
 ```
-
 
 ```{r}
 ggplot(FullData_2025) +
@@ -477,6 +509,5 @@ FullData_2025|>
        x = "Democracy", 
        y = "Life Expectancy at Birth")
 ```
-
 
 **ANSWER:**
