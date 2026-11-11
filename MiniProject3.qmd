@@ -31,7 +31,7 @@ Load your data here
 
 ```{r}
 # Full Dataset
-FullData_2025 <- read.csv("Data/FullData_2025")
+FullData_2025 <- read.csv("Data/FullData_2025.csv")
 ```
 
 ```{r}
@@ -116,11 +116,50 @@ Split your data into an 80/20 training testing split after logging any variables
 
 Make a lasso regression model for your response vs all predictors on the training data.
 
+```{r}
+FullData_folds <- vfold_cv(FullData_train, v = 10)
+
+lasso_spec <- linear_reg(
+  penalty = tune(),
+  mixture = 1 #this is choosing LASSO
+) |>
+  set_engine("glmnet")
+
+lasso_workflow <- workflow() |>
+  add_recipe(LifExp_recipe) |>
+  add_model(lasso_spec)
+
+lasso_tuned <- tune_grid(
+  lasso_workflow,
+  resamples = FullData_folds,
+  grid = penalty_grid,
+  metrics = metric_set(rmse, rsq, mae)
+)
+```
+
 ### Which variables
 
 By looking at the slopes, which variables should be considered included in the model
 
+```{r}
+autoplot(lasso_tuned)
+lasso_best <- select_best(lasso_tuned, metric = "rmse")
+lasso_best
+lasso_final_workflow <- finalize_workflow(lasso_workflow, lasso_best)
+lasso_fit <- fit(lasso_final_workflow, data = FullData_train)
+tidy(lasso_fit)
+```
+
 ### Model evaluation-regression metrics on testing.
+
+```{r}
+regression_metrics <- metric_set(mse, rmse, mae)
+
+lasso_test_results <- predict(lasso_fit, FullData_test) |>
+  bind_cols(FullData_test |> select(LifeExp)) |>
+  regression_metrics(truth = LifeExp, estimate = .pred)
+lasso_test_results
+```
 
 ## Regression Tree
 
@@ -128,11 +167,42 @@ By looking at the slopes, which variables should be considered included in the m
 
 Make a regression tree model for your response vs all predictors on the training data.
 
+```{r}
+tree_spec <- decision_tree() |>
+  set_mode("regression")|>
+  set_engine("rpart", model=TRUE) 
+
+tree_workflow <- workflow() |>
+  add_recipe(LifExp_recipe) |>
+  add_model(tree_spec)
+
+heart_tree=tree_workflow |>
+  fit(data = heart_train)
+
+tree_object=heart_tree |>
+  extract_fit_engine() 
+```
+
 ### Which variables
 
 By looking at the tree, which variables should be considered included in the model
 
-### Model evaluation-regression metrics on testing.
+```{r}
+rpart.plot(tree_object)
+```
+
+### Model evaluation-regression metrics on testing
+
+```{r}
+LifeExp_tree_predict <- 
+  tree_workflow |> 
+  fit(data = FullData_test)
+
+test_results <- augment(LifeExp_tree_predict, new_data = FullData_test)
+
+test_results|>
+  regression_metrics(truth = LifeExp, estimate = .pred)
+```
 
 # Section 3: Grace
 
