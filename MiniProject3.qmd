@@ -21,6 +21,8 @@ This is the template document for mini-project 3. You must use the template docu
 Put whatever libraries you use here.
 
 ```{r}
+#| label: setup 
+#| include: false
 library(tidyverse)
 library(tidymodels)
 library(glmnet)
