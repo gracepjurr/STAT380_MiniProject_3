@@ -500,37 +500,17 @@ The recommended model to use would be the Random Forest model. This was chosen a
 
 You will write your own question about the data, create a data visualization that can help answer your question, and write an answer to your question. The question/visualization should explore the relationship between at least 2 of the variables in the dataset. Be sure you include both the question and the answer to your question based on the visualization you have created. It should be a different question than last two mini-projects.
 
-**QUESTION:** What is the relationship between overall sanitation and life expectancy at birth over different regions and countries with different democratic status?
+**QUESTION:** What is the relationship between Life Expectancy and a country's Democratic Status across different Regions? 
 
 ```{r}
-esquisser(FullData_2025)
-```
-
-```{r}
-ggplot(FullData_2025) +
-  aes(x = Traffic_Deaths, y = LifeExp, colour = world_4region) +
-  geom_point() +
-  scale_color_hue(direction = 1) 
-
-FullData_2025 |>
-  ggplot(aes(x = Traffic_Deaths, y = LifeExp, color = Democracy)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(
-    x = "Traffic Deaths (per 100K)",
-    y = "Life Expectancy at Birth",
-    color = "Democracy",
-    title = "Life Expectancy vs. Traffic Deaths by Democratic Country"
-  )
-
 #Side by side boxplots
 FullData_2025|>
   ggplot(mapping = aes(x = Democracy, y = LifeExp)) +
   geom_boxplot() +
   facet_wrap(vars(world_4region))+
-  labs(title = "Body Mass vs. Sex for Palmer Penguins",
+  labs(title = "Life Expectancy by Democratic Status Across World Regions",
        x = "Democracy", 
        y = "Life Expectancy at Birth")
 ```
 
-**ANSWER:**
+**ANSWER:** The small multiples plot above helps us better compare and explore relationships between `Democracy`, `Region`, and `Life Expectancy`. Specifically, we can overall see that, Democratic countries across all regions have a higher life expectancy than countries with NO democracy. We can also compare life expectancy directly between the regions with Europe and Asia having the highest upper ranges for both democratic and non democratic countries while Africa has the lowest ranges for their countries overall. Furthermore, we can compare specifics within these ranges such as upper quartile, lower quartile, and median. Here from the graph, we can see that while both Europe and Asia have similar ceilings between this region's countries compared to Europe. Therefore, to answer the original question, there is a positive relationship between life expectancy and a country having a democracy across all four world regions.  
