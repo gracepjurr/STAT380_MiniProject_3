@@ -46,7 +46,6 @@ FullData_2025<-FullData_2025|>
   mutate(Democracy=as.factor(Democracy), UN_member=as.factor(UN_member), world_4region=as.factor(world_4region))
 
 head(FullData_2025)
-
 ```
 
 **NOTE REGARDING DATA:** Please note that the data for each variable was collected from the last year provided in their respective datasets. For our purposes, we will be treated all variables as being collected from the year 2025 regardless of their most recent data. Below are the *actual* years each column was collected from:
@@ -72,8 +71,6 @@ head(FullData_2025)
 *UN Membership:* 2022
 
 *Basic Sanitation Overall:* 2024
-
-# Section 1: Oyinda
 
 ## Exploratory data analysis
 
@@ -296,11 +293,9 @@ test_data  <- testing(data_split)
 nrow(train_data)
 nrow(test_data)
 
-# Create list of only predictor variables
+# Create list of only predictor variables [Helpful for later model recipes]
 predictors <- c("Democracy", colnames(FullData_2025)[5:9],colnames(FullData_2025)[11:14])
 ```
-
-# Section 2: Mia
 
 ## Lasso regression
 
@@ -350,9 +345,9 @@ lasso_fit <- fit(lasso_final_workflow, data = train_data)
 tidy(lasso_fit)
 ```
 
-Based on the LASSO regression model, the variables to be considered include: HDI, log_Traffic_Deaths, and Sanitation.
+Based on the LASSO regression model, the variables to be considered include: `HDI`, `log_Traffic_Deaths`, and `Sanitation`.
 
-*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
+*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is seems to be important to the model according to the above table, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
 
 ### Model evaluation-regression metrics on testing.
 
@@ -395,9 +390,9 @@ By looking at the tree, which variables should be considered included in the mod
 rpart.plot(tree_object)
 ```
 
-Based on the regression tree, the variables to consider include Sanitation, CO2, and HDI.
+Based on the regression tree, the variables to consider include `Sanitation`, `CO2`, and `HDI`.
 
-*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
+*Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is seems to be  important to the model according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
 
 ### Model evaluation-regression metrics on testing
 
@@ -411,8 +406,6 @@ test_results <- augment(LifeExp_tree_predict, new_data = test_data)
 test_results|>
   regression_metrics(truth = LifeExp, estimate = .pred)
 ```
-
-# Section 3: Grace
 
 ## Random forest
 
@@ -488,13 +481,15 @@ rf_regress_test
 
 What were the similarities and the difference between the variables selected for each model.
 
-Overall, across all three models, HDI and Sanitation were determined as the primary predictors of Life Expectancy, consistently ranking as the top two. Looking beyond the top two, the models diverged in their choices. LASSO prioritized log_Traffic_Deaths, the Decision Tree prioritized CO2, and the Random Forest prioritized Internet users as third place predictors. Despise the differences in the third best predictor variable, log_Traffic_Deaths was still a strong consideration in two models, LASSO and Random Forest (coming in 4th place after Internet users). The Decision Tree's exclusion of a fourth predictor variable makes it unable to determine if log_Traffic_Deaths was also considered.
+Overall, across all three models, `HDI` and `Sanitation` were determined as the primary predictors of `Life Expectancy`, consistently ranking as the top two. Looking beyond the top two, the models diverged in their choices. LASSO prioritized `log_Traffic_Deaths`, the Decision Tree prioritized `CO2`, and the Random Forest prioritized `Internet users` as third place predictors. Despise the differences in the third best predictor variable, `log_Traffic_Deaths` was still a strong consideration in two models, LASSO and Random Forest (coming in 4th place after `Internet users`). The Decision Tree's exclusion of a fourth predictor variable makes it unable to determine if `log_Traffic_Deaths` was also considered.
 
 ## Best model
 
 Which model would you recommend your team use? Why? Are there trade-offs between interpretability and model metrics?
 
-The recommended model to use would be the Random Forest model. This was chosen as the recommended model because it had the lowest set of evaludation metrics on the test data across all the models created in this document. The trade-off is that the result of creating the Random Forest model does not indicate by how much the best predictor variables influence the response Life Expectancy. The result only shows the graph that plots the importance, not the impact values. Although this trade-off exists, it is still the top choice based on the evaluating metrics on the test set.
+The recommended model to use would be the Random Forest model. This was chosen as the recommended model because it had the lowest set of evaluation metrics (RMSE, MSE, and MAE) on the test data across all the models created in this document. Random Forest models also tend to generalize to the data better compared to Tree regression models since they average many trees rather than just one reducing risks of potential variance and overfitting. 
+
+The trade-off is mainly the issue of interpretability. The result of the variable importance plot only shows which predictors are the best for the model, but it fails to show how much the best predictor variables influence the response Life Expectancy (positive/ negative/ magnitude). Although this trade-off exists, it is still the top choice based on the evaluating metrics on the test set.
 
 ## Your question
 
