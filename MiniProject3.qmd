@@ -463,7 +463,7 @@ importance_df |>
   )
 ```
 
-From the graph, the main variables that we would consider to include in the model are `HDI` and `Sanitation` since they had the highest importance according to the results of the graph. Other variables that could also be considered are `Traffic Deaths`and `Internet Users` followed by `GDP`.
+From the graph, the main variables that we would consider to include in the model are `HDI` and `Sanitation` since they had the highest importance according to the results of the graph. Other variables that could also be considered are `Internet Users`and `Traffic Deaths` followed by `GDP`.
 
 *Note about `HDI`:* The use of HDI as a predictor for the `Life Expectancy` response variable should be approached with caution. Although the Human Development Index is the best performing variable according to the above graph, there is some overlap with the response variable because one of the measures of HDI accounts for life expectancy. This doesn't necessarily mean it can't be used in the model, but we should be aware of the direct relationship of these variables.
 
@@ -488,9 +488,13 @@ rf_regress_test
 
 What were the similarities and the difference between the variables selected for each model.
 
+Overall, across all three models, HDI and Sanitation were determined as the primary predictors of Life Expectancy, consistently ranking as the top two. Looking beyond the top two, the models diverged in their choices. LASSO prioritized log_Traffic_Deaths, the Decision Tree prioritized CO2, and the Random Forest prioritized Internet users as third place predictors. Despise the differences in the third best predictor variable, log_Traffic_Deaths was still a strong consideration in two models, LASSO and Random Forest (coming in 4th place after Internet users). The Decision Tree's exclusion of a fourth predictor variable makes it unable to determine if log_Traffic_Deaths was also considered.
+
 ## Best model
 
 Which model would you recommend your team use? Why? Are there trade-offs between interpretability and model metrics?
+
+The recommended model to use would be the Random Forest model. This was chosen as the recommended model because it had the lowest set of evaludation metrics on the test data across all the models created in this document. The trade-off is that the result of creating the Random Forest model does not indicate by how much the best predictor variables influence the response Life Expectancy. The result only shows the graph that plots the importance, not the impact values. Although this trade-off exists, it is still the top choice based on the evaluating metrics on the test set.
 
 ## Your question
 
